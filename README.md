@@ -48,16 +48,3 @@ Here are some guidelines for constructing training and test data:
 
 - let all three values take positive values in the range `[0.0, 100.0]`. They should all be floating-point values.
 - select cases with 10, 40, 160, and 640 boxes each, to explore scaling
-
-
-## How to run the tests
-
-The project uses [Midje](https://github.com/marick/Midje/).
-
-`lein midje` will run all tests.
-
-`lein midje namespace.*` will run only tests beginning with "namespace.".
-
-`lein midje :autotest` will run all the tests indefinitely. It sets up a
-watcher on the code files. If they change, only the relevant tests will be
-run again.
