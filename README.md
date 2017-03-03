@@ -40,6 +40,16 @@ As with any coding _kata_, the point here is to practice your coding skills mind
 
 There is no right answer, and I haven't specified a language to use. I'm planning on working through it in Clojure, because I'm a bit out of practice after a few weeks away. But I might also write it in Ruby or Javascript or Python, and so should you.
 
+## Fitness cases for machine learning
+
+This _kata_ turns out to be an interesting problem for genetic programming and neural networks, as well.
+
+Here are some guidelines for constructing training and test data:
+
+- let all three values take positive values in the range `[0.0, 100.0]`. They should all be floating-point values.
+- select cases with 10, 40, 160, and 640 boxes each, to explore scaling
+
+
 ## How to run the tests
 
 The project uses [Midje](https://github.com/marick/Midje/).
