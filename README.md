@@ -8,7 +8,9 @@ Imagine we have a tabletop, which we will represent as the Cartesian plane for `
 
 We also have a collection of _boxes_. Each box is a rectangle, and is defined by three values, its `left` (edge position on the `x` axis), its `width`, and its `height`. Any given box is defined by these three values, and you're welcome to think of them as a tuple, or three attributes of an object, or as a map, or whatever you like.
 
-Imagine that we place the boxes on the table, in the `x` position stated by each one's `left` specification, and then we crouch down and peer across the table. We will see a _skyline_. That is, for every `x` position on the table, there are one or more _tallest_ boxes. If we trace along the top of the tallest box for all values of `x`, there is one particular `y` value (which may be 0.0, where no box is sitting). Taken together, these `y` values for each `x` ≥ 0 define the _skyline function_ for a specified set of boxes.
+Imagine that we place all the boxes on the table, in the `x` position stated by each one's `left` specification. Boxes can overlap as needed; we just place one in front of the other.
+
+Then we crouch down and peer across the table. We will see a _skyline_. That is, for every `x` position on the table, there are one or more _tallest_ boxes. If we trace along the top of the tallest box for all values of `x`, there is one particular `y` value (which may be 0.0, where no box is sitting). Taken together, these `y` values for each `x` ≥ 0 define the _skyline function_ for a specified set of boxes.
 
 There are a few things I'd like to do here as part of the _kata_:
 
