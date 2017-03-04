@@ -14,7 +14,7 @@ Then we crouch down and peer across the table. We will see a _skyline_. That is,
 
 Here's a sketch of some boxes, and the black line at the top is the skyline formed by them.
 
-![skyline](img/tablecloth.png)
+![skyline](/img/tablecloth.png)
 
 There are a few things I'd like to do here as part of the _kata_:
 
