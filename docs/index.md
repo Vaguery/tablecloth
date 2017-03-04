@@ -70,7 +70,7 @@ Several answers would do in the case of the example I gave you, but there would 
 
 Given a set of boxes, return an integer that represents the number of different "altitudes" in the whole skyline function. In other words, how many different horizontal lines comprise it, for all `x` values?
 
-In the example, given five boxes, the answer would be `4`.
+In the example, given five boxes, the answer would be `5`. There are five different heights (including the tabletop, which is `0`) in the entire skyline.
 
 ### skyline histogrammer
 
