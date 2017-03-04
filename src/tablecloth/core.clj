@@ -6,11 +6,13 @@
   [box x]
   (let [l (:left box)
         w (:width box)
+        r (+ l w)
         h (:height box)]
-    (cond
-      (< x l) 0
-      (<= x (+ l w)) h
-      :else 0)))
+    (if
+      (and (<= x r) (>= x l)) h
+      0
+      )))
+
 
 (defn skyline
   [boxes x]

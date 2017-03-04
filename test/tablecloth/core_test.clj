@@ -28,7 +28,7 @@
     (map #(box-height % 13.0) boxes) => [0 0 4]
     ))
 
-(fact "max-box-height"
+(fact "skyline function"
   (let [boxes [(->Box 1 10 2)
                (->Box 2  2 3)
                (->Box 12 3 4)]]
