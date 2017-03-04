@@ -12,6 +12,10 @@ Imagine that we place all the boxes on the table, in the `x` position stated by 
 
 Then we crouch down and peer across the table. We will see a _skyline_. That is, for every `x` position on the table, there are one or more _tallest_ boxes. If we trace along the top of the tallest box for all values of `x`, there is one particular `y` value (which may be 0.0, where no box is sitting). Taken together, these `y` values for each `x` ≥ 0 define the _skyline function_ for a specified set of boxes.
 
+Here's a sketch of some boxes, and the black line at the top is the skyline formed by them.
+
+![skyline](vaguery.github.com/tablecloth/img/tablecloth.jpg)
+
 There are a few things I'd like to do here as part of the _kata_:
 
 ### skyline function
@@ -48,3 +52,4 @@ Here are some guidelines for constructing training and test data:
 
 - let all three values take positive values in the range `[0.0, 100.0]`. They should all be floating-point values.
 - select cases with 10, 40, 160, and 640 boxes each, to explore scaling
+- be sure to include at least one empty training case, a few with overlapping (redundant) boxes, and a few with non-overlapping boxes
