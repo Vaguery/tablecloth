@@ -20,36 +20,68 @@ You can see in that sketch that the "height" of the top black line is the maximu
 
 The challenges in this (or any) _kata_, of course, are not to merely write a function to execute that "maximum height of all the boxes" phrase algorithmically, but rather to write such an algorithm _well_. That is to say: using good technique, and _also_ producing a good result.
 
-There are a few things I'd like to do here as part of the _kata_:
+There are a few things I'd like to do here as part of the _kata_. In the examples to follow, I will use this set of boxes as an example (they're the numbers I used to make that sketch, too):
+
+~~~ text
+box    left    width    height
+1       10        8        3
+2       12        5        4
+3        6        3        2
+4       19        4        1
+5        0       16        5
+~~~
 
 ### skyline function
 
 Given a set of boxes (each defined by its `left`, `width` and `height` values), and some `x` value, construct a function that returns the correct `y` value for any `x` ≥ 0. Wherever there is no box sitting, the skyline value should be `0.0`.
 
+If I gave you the example boxes, and asked for the value at `x=8` (the thin vertical line), you would tell me `5`.
+
 ### skyline `changed?` predicate
 
 Given a set of boxes, and one more box, return `true` if the skyline function _after the new box is added to the original collection_ is different, or `false` if it is the same. That is, if the new box "bumps up" the skyline anywhere, return `true`.
+
+In the example, suppose I gave you boxes `{1,2,4,5}` and not box `3` (the little red one). If I then gave you box `3`, you would respond `false`. If instead I had given you boxes `{1,2,3,5}` and then box `4` (way over on the right by itself), you would respond `true`.
 
 ### skyline normalizer
 
 Given a set of boxes, return a new set of boxes which together form the same skyline, _but do not overlap one another_ in the `x` direction. This will probably involve making a new box for every place where the skyline value changes along the `x` axis.
 
+In the example, if I gave you all five boxes, you would give me four boxes:
+
+1. `{left: 0, width: 16, height: 5}` (box 5)
+2. `{left:16, width:  1, height: 4}`
+3. `{left:17, width:  1, height: 3}`
+4. `{left:19, width:  4, height: 1}` (box 4)
+
 ### skyline reducer
 
 Given a set of boxes, return the smallest subset those boxes which produces the same skyline. That is, remove any box which does not contribute to the skyline. For example, in the sketch above, the little red box can be removed without changing the skyline at all, so it should be removed.
+
+In the example, if I gave you all five boxes, you would remove box 3.
 
 ### skyline optimizer
 
 Given a set of boxes, return a new set of boxes which together form the same skyline, _and is of minimum size_. That is, the number of boxes you use to construct the new skyline should be the minimum possible number of boxes, of any size. Be sure to take into account situations where two boxes of the same height are adjacent to one another, and feel free to use long, low boxes span several stretches of skyline that happen to be the same height.
 
+Several answers would do in the case of the example I gave you, but there would need to be four boxes. You could simply remove box 3, or return the normalized boxes described above. Either answer has the minimum of four boxes. At least I _think_ that's the minimum....
+
 ### skyline counter
 
 Given a set of boxes, return an integer that represents the number of different "altitudes" in the whole skyline function. In other words, how many different horizontal lines comprise it, for all `x` values?
 
+In the example, given five boxes, the answer would be `4`.
+
 ### skyline histogrammer
 
-Given a set of boxes, return a collection (in any order) of `(y, x)` pairs, where `y` is a specific unique height of the skyline function, and the associated `x` is the _total_ skyline distance at that height exactly, over all possible `x`. Not including the table-top `x=0` value, of course.
+Given a set of boxes, return a collection (in any order) of `(y, x)` pairs, where `y` is a specific unique height of the skyline function, and the associated `x` is the _total_ skyline distance at that height exactly, over all possible `x`. Not including the table-top `x=0` value, of course. There should be exactly one entry for every non-zero `y` value the skyline function takes.
 
+In the example, given five boxes, the answer would have to include these pairs, in any order:
+
+- `{y: 5, x: 16}`
+- `{y: 4, x:  1}`
+- `{y: 3, x:  1}`
+- `{y: 1, x:  4}`
 
 ## Kata
 
