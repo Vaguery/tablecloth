@@ -16,7 +16,9 @@ Here's a sketch of some boxes, and the black line at the top is the skyline form
 
 ![skyline](http://vaguery.github.io/tablecloth/img/tablecloth.png)
 
-You can see in that sketch that the "height" of the top black line is the maximum height of all the boxes that sit straddle any point on the `x` axis. The challenges, of course, are not to merely write a function to execute that "maximum height of all the boxes" phrase algorithmically, but rather to write such an algorithm _well_. That is to say: using good technique, and _also_ producing a good result.
+You can see in that sketch that the "height" of the top black line is the maximum height of all the boxes that sit straddle any point on the `x` axis. There's a thin vertical black line; looking at that `x` position, you can see the smaller red box in the "foreground" is dominated by the larger wide purple box in the "background", so the skyline `y` value at that point is the top of the purple box.
+
+The challenges in this (or any) _kata_, of course, are not to merely write a function to execute that "maximum height of all the boxes" phrase algorithmically, but rather to write such an algorithm _well_. That is to say: using good technique, and _also_ producing a good result.
 
 There are a few things I'd like to do here as part of the _kata_:
 
