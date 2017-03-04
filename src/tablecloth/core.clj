@@ -1,9 +1,17 @@
 (ns tablecloth.core)
 
-;;; This is an incorrect implementation, such as might be written by
-;;; someone who was used to a Lisp in which an empty list is equal to
-;;; nil.
-(defn first-element [sequence default]
-  (if (nil? sequence)
-    default
-    (first sequence)))
+(defrecord Box [left width height])
+
+(defn box-height
+  [box x]
+  (let [l (:left box)
+        w (:width box)
+        h (:height box)]
+    (cond
+      (< x l) 0
+      (<= x (+ l w)) h
+      :else 0)))
+
+(defn skyline
+  [boxes x]
+  (apply max (map #(box-height % x) boxes)))

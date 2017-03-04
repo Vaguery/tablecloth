@@ -2,16 +2,37 @@
   (:use midje.sweet)
   (:use [tablecloth.core]))
 
-(println "You should expect to see three failures below.")
+(fact "I can make a box"
+  (:left (->Box 1 2 3)) => 1
+  (:width (->Box 1 2 3)) => 2
+  (:height (->Box 1 2 3)) => 3
+  )
 
-(facts "about `first-element`"
-  (fact "it normally returns the first element"
-    (first-element [1 2 3] :default) => 1
-    (first-element '(1 2 3) :default) => 1)
 
-  ;; I'm a little unsure how Clojure types map onto the Lisp I'm used to.
-  (fact "default value is returned for empty sequences"
-    (first-element [] :default) => :default
-    (first-element '() :default) => :default
-    (first-element nil :default) => :default
-    (first-element (filter even? [1 3 5]) :default) => :default))
+(facts "about box-height"
+  (fact "one box and an x value"
+    (box-height (->Box 1 10 2) 2) => 2
+    (box-height (->Box 1 10 2) 1) => 2
+    (box-height (->Box 1 10 2) 0) => 0
+    (box-height (->Box 1 10 2) 10) => 2
+    (box-height (->Box 1 10 2) 11) => 2
+    (box-height (->Box 1 10 2) 11.00001) => 0
+    ))
+
+(fact "I can determine all the heights at one x"
+  (let [boxes [(->Box 1 10 2)
+               (->Box 2  2 3)
+               (->Box 12 3 4)]]
+    (map #(box-height % 2.0) boxes) => [2 3 0]
+    (map #(box-height % 0.0) boxes) => [0 0 0]
+    (map #(box-height % 13.0) boxes) => [0 0 4]
+    ))
+
+(fact "max-box-height"
+  (let [boxes [(->Box 1 10 2)
+               (->Box 2  2 3)
+               (->Box 12 3 4)]]
+    (skyline boxes 2.0) => 3
+    (skyline boxes 0.0) => 0
+    (skyline boxes 13.0) => 4
+    ))
