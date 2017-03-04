@@ -10,7 +10,7 @@ We also have a collection of _boxes_. Each box is a rectangle, and is defined by
 
 Imagine that we place all the boxes on the table, in the `x` position stated by each one's `left` specification. Boxes can overlap as needed; we just place one in front of the other.
 
-Then we crouch down and peer across the table. We will see a _skyline_. That is, for every `x` position on the table, there are one or more _tallest_ boxes. If we trace along the top of the tallest box for all values of `x`, there is one particular `y` value (which may be 0.0, where no box is sitting). Taken together, these `y` values for each `x` ≥ 0 define the _skyline function_ for a specified set of boxes.
+Then we crouch down and peer across the table. We will see a _skyline_. That is, for every `x` position on the table, there may be no box at all, and so at that `x` position, the skyline has height `0`. Or there might be one or more boxes sitting astraddle position `x`, in which case the skyline height is the height of the tallest sitting over that spot. Taken together, these `y` values for each `x` ≥ 0 define the _skyline function_ for a specified set of boxes.
 
 Here's a sketch of some boxes, and the black line at the top is the skyline formed by them.
 
