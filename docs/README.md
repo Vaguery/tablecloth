@@ -14,7 +14,7 @@ Then we crouch down and peer across the table. We will see a _skyline_. That is,
 
 Here's a sketch of some boxes, and the black line at the top is the skyline formed by them.
 
-![skyline](vaguery.github.com/tablecloth/img/tablecloth.jpg)
+![skyline](vaguery.github.io/tablecloth/img/tablecloth.jpg)
 
 There are a few things I'd like to do here as part of the _kata_:
 
