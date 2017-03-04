@@ -4,7 +4,7 @@ A sometimes-tricky [coding *kata*](https://en.wikipedia.org/wiki/Kata_(programmi
 
 ## Problem definition
 
-Imagine we have a tabletop, which we will represent as the Cartesian plane for `x` >= 0.
+Imagine we have a tabletop. Call the left edge of the table `x=0`, and as we move right across the table think of the distance from the left as a value `x`. Call the _height_ of any object above the tabletop a distance `y`.
 
 We also have a collection of _boxes_. Each box is a rectangle, and is defined by three values, its `left` (edge position on the `x` axis), its `width`, and its `height`. Any given box is defined by these three values, and you're welcome to think of them as a tuple, or three attributes of an object, or as a map, or whatever you like.
 
