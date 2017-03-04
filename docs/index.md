@@ -1,6 +1,6 @@
 # tablecloth
 
-A sometimes-tricky coding kata.
+A sometimes-tricky [coding *kata*](https://en.wikipedia.org/wiki/Kata_(programming)).
 
 ## Problem definition
 
@@ -24,7 +24,7 @@ There are a few things I'd like to do here as part of the _kata_:
 
 ### skyline function
 
-Given a set of boxes (each defined by its `left`, `width` and `height` values), and some `x` value, construct a function that returns the correct `y` value for any `x` ≥ 0.
+Given a set of boxes (each defined by its `left`, `width` and `height` values), and some `x` value, construct a function that returns the correct `y` value for any `x` ≥ 0. Wherever there is no box sitting, the skyline value should be `0.0`.
 
 ### skyline `changed?` predicate
 
@@ -36,11 +36,20 @@ Given a set of boxes, return a new set of boxes which together form the same sky
 
 ### skyline reducer
 
-Given a set of boxes, return the smallest subset of the same boxes which produces the same skyline. That is, remove any box which does not contribute to the skyline.
+Given a set of boxes, return the smallest subset those boxes which produces the same skyline. That is, remove any box which does not contribute to the skyline. For example, in the sketch above, the little red box can be removed without changing the skyline at all, so it should be removed.
 
 ### skyline optimizer
 
-Given a set of boxes, return a new set of boxes which together form the same skyline, _and is of minimum size_. That is, the number of boxes you use to construct the new skyline should be the minimum possible number of boxes, of any size.
+Given a set of boxes, return a new set of boxes which together form the same skyline, _and is of minimum size_. That is, the number of boxes you use to construct the new skyline should be the minimum possible number of boxes, of any size. Be sure to take into account situations where two boxes of the same height are adjacent to one another, and feel free to use long, low boxes span several stretches of skyline that happen to be the same height.
+
+### skyline counter
+
+Given a set of boxes, return an integer that represents the number of different "altitudes" in the whole skyline function. In other words, how many different horizontal lines comprise it, for all `x` values?
+
+### skyline histogrammer
+
+Given a set of boxes, return a collection (in any order) of `(y, x)` pairs, where `y` is a specific unique height of the skyline function, and the associated `x` is the _total_ skyline distance at that height exactly, over all possible `x`. Not including the table-top `x=0` value, of course.
+
 
 ## Kata
 
@@ -57,3 +66,6 @@ Here are some guidelines for constructing training and test data:
 - let all three values take positive values in the range `[0.0, 100.0]`. They should all be floating-point values.
 - select cases with 10, 40, 160, and 640 boxes each, to explore scaling
 - be sure to include at least one empty training case, a few with overlapping (redundant) boxes, and a few with non-overlapping boxes
+- be sure to include situations where several boxes have the same height, and overlap one another
+- be sure to include cases where one box "dominates" another; that is, where a smaller box not contribute at all to the skyline
+- be sure to include cases where all the boxes are the same height, or where there are only a few specific heights for many boxes
