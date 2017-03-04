@@ -99,5 +99,5 @@ Here are some guidelines for constructing training and test data:
 - select cases with 10, 40, 160, and 640 boxes each, to explore scaling
 - be sure to include at least one empty training case, a few with overlapping (redundant) boxes, and a few with non-overlapping boxes
 - be sure to include situations where several boxes have the same height, and overlap one another
-- be sure to include cases where one box "dominates" another; that is, where a smaller box not contribute at all to the skyline
+- be sure to include cases where one box "dominates" another; that is, where a smaller box cannot contribute at all to the skyline
 - be sure to include cases where all the boxes are the same height, or where there are only a few specific heights for many boxes
