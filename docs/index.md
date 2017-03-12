@@ -2,6 +2,10 @@
 
 A sometimes-tricky [coding *kata*](https://en.wikipedia.org/wiki/Kata_(programming)).
 
+## my version
+
+This is an exercise, and it would be mean and possibly stupid if I didn't try it myself a few times. So I've been working through it (in Clojure, though that's not really important), and [collecting my thoughts](http://vaguery.github.io/tablecloth/my-path.html) in that "Learning in Public" style I prefer.
+
 ## Problem definition
 
 Imagine we have a tabletop. Call the left edge of the table `x=0`, and as we move right across the table think of the distance from the left as a value `x`. Call the _height_ of any object above the tabletop a distance `y`.
