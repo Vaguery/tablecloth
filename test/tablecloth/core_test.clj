@@ -39,3 +39,8 @@
     (skyline boxes 0.0) => 0
     (skyline boxes 13.0) => 4
     ))
+
+
+(fact "skyline works with an empty collection"
+  (skyline [] 5) => 0
+  )
