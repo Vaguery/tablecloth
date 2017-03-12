@@ -8,16 +8,18 @@
   (:height (->Box 1 2 3)) => 3
   )
 
-
+;
 (facts "about box-height"
-  (fact "one box and an x value"
+  (fact "returns height, given one box and any x value"
     (box-height (->Box 1 10 2) 2) => 2
     (box-height (->Box 1 10 2) 1) => 2
     (box-height (->Box 1 10 2) 0) => 0
     (box-height (->Box 1 10 2) 10) => 2
     (box-height (->Box 1 10 2) 11) => 2
     (box-height (->Box 1 10 2) 11.00001) => 0
+    (box-height (->Box 1 10 2) 9000) => 0
     ))
+
 
 (fact "I can determine all the heights at one x"
   (let [boxes [(->Box 1 10 2)
@@ -28,7 +30,8 @@
     (map #(box-height % 13.0) boxes) => [0 0 4]
     ))
 
-(fact "skyline function"
+
+(fact "skyline function returns tallest height at x"
   (let [boxes [(->Box 1 10 2)
                (->Box 2  2 3)
                (->Box 12 3 4)]]
