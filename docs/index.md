@@ -4,7 +4,7 @@ A sometimes-tricky [coding *kata*](https://en.wikipedia.org/wiki/Kata_(programmi
 
 ## my version
 
-This is an exercise, and it would be mean and possibly stupid if I didn't try it myself a few times. So I've been working through it (in Clojure, though that's not really important), and [collecting my thoughts](http://vaguery.github.io/tablecloth/my-path.html) in that "Learning in Public" style I prefer.
+This is an exercise, and it would be mean (and possibly stupid) if I didn't try it myself a few times. So I've been working through it (in Clojure, though that's not really important), and [collecting my thoughts](http://vaguery.github.io/tablecloth/my-path.html) in that "Learning in Public" style I prefer.
 
 ## Problem definition
 
