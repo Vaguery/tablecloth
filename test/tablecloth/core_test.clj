@@ -46,14 +46,14 @@
   )
 
 
-(fact "box-ends produces a set of end points"
+(fact "box-sides produces a set of side points"
   (let [boxes [(->Box 0 2 1)
                (->Box 2 2 2)
                (->Box 1 2 3)]]
-    (box-ends boxes) => #{0 1 2 3 4}
-    (box-ends (take 1 boxes)) => #{0 2}
-    (box-ends (take 2 boxes)) => #{0 2 4}
-    (box-ends []) => #{}
+    (box-sides boxes) => #{0 1 2 3 4}
+    (box-sides (take 1 boxes)) => #{0 2}
+    (box-sides (take 2 boxes)) => #{0 2 4}
+    (box-sides []) => #{}
     ))
 
 
@@ -63,7 +63,7 @@
     (into #{}
       (filter
         #(and (< 1 %) (> 3 %))
-        (box-ends boxes))) => #{2 2.1}
+        (box-sides boxes))) => #{2 2.1}
     ))
 
 (fact "sides-within-box returns the side positions it overlaps in a collection of boxes"
@@ -80,3 +80,18 @@
     (sides-within-box boxes (->Box 0 33 3)) =>
       #{0 2 2.1 4.1 33}
     ))
+
+
+(fact "skyline-changed? returns true if, well..."
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2 2 2)]]
+    (skyline-changed? boxes (->Box 1 2 3)) => true
+    (skyline-changed? boxes (->Box 0 2 1)) => false
+    (skyline-changed? boxes (->Box 100 2 10)) => true
+    (skyline-changed? boxes (->Box 0 4 1)) => false
+    (skyline-changed? boxes (->Box 0 2 2)) => true
+  ))
+
+(fact "skyline-changed? works for an empty collection"
+  (skyline-changed? [] (->Box 1 2 3)) => true
+)

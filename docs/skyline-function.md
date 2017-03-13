@@ -1,4 +1,4 @@
-**Previously:** [getting started](getting-started.md)
+**Previously:** [getting started](getting-started.html)
 
 # The skyline function
 
@@ -334,3 +334,6 @@ Anyway, I think this does that a bit better. The fact that I'm using field names
 Also, you should have yelled at me for using single-letter variables like `l` and `r` and `h` before. Sheesh.
 
 All the tests pass, and I like the code a bit more. So now I should move along.
+
+
+**Next:** [testing whether a skyline has changed](skyline-changed.html)

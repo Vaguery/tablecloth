@@ -1,4 +1,4 @@
-**Previously:** [the skyline function](skyline-function.md)
+**Previously:** [the skyline function](skyline-function.html)
 
 # The skyline-changed? predicate function
 
@@ -293,4 +293,171 @@ Those all pass.
 
 I think I've got what I need to work through `skyline-changed?` now. I can gather all the `x` positions where the skyline _might_ have changed.
 
-** To Be Continued **
+I can write at least one test already:
+
+~~~ clojure
+(fact "skyline-changed? returns true if, well..."
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2 2 2)]]
+    (skyline-changed? boxes (->Box 1 2 3)) => true
+  ))
+~~~
+
+That is, it will change when a big tall box appears in the mix.
+
+Of course, there is no such function (again), so I write one.
+
+~~~ clojure
+(defn skyline-changed?
+  [boxes box]
+  (let [exes (sides-within-box boxes box)
+        old-sky (partial skyline boxes)
+        new-sky (partial skyline (conj boxes box))]
+    (some #(not= (old-sky %) (new-sky %)) exes)
+  ))
+~~~
+
+I am eliding a bunch of stupid typos here, and a whole lot of looking-things-up-at-clojuredocs.org. I hope you will forgive me.
+
+What this does is actually pretty straightforward. In the `let` box I am determining all the salient `x` values (saved as `exes`), and constructing two `partial` functions that will tell me "the skyline" of the collection of boxes without the new one, and the skyline with the new one added in. Then in the body I'm saying, essentially, "For all these `exes` values, is there any place where the `skyline-function` is different before and after?"
+
+That's what `some` does. Sortof. It's a but more complicated than that, because it _actually_ returns a value that isn't `false` if it doesn't find something (which, if you know Clojure, is signaled by the fact that it isn't called `some?`).
+
+At any rate, this makes the test pass. So time for more tests! This second claim is intended to fail (the expected outcome is `false`, not `true`):
+
+~~~ clojure
+(fact "skyline-changed? returns true if, well..."
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2 2 2)]]
+    (skyline-changed? boxes (->Box 1 2 3)) => true
+    (skyline-changed? boxes (->Box 0 2 1)) => true
+  ))
+~~~
+
+And it does fail, but that's because `some` returns `nil` when it doesn't find anything, not `false`. Like I said above, in fact. This provokes a minor change in my `skyline-changed?` function, where I cast the result of `some` to a `boolean` value.
+
+~~~ clojure
+(defn skyline-changed?
+  [boxes box]
+  (let [exes (sides-within-box boxes box)
+        old-sky (partial skyline boxes)
+        new-sky (partial skyline (conj boxes box))]
+    (boolean
+      (some #(not= (old-sky %) (new-sky %)) exes))
+  ))
+~~~
+
+That works when I fix the test to be correct (oops), and it continues to work when I add a bunch more cases:
+
+~~~ clojure
+(fact "skyline-changed? returns true if, well..."
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2 2 2)]]
+    (skyline-changed? boxes (->Box 1 2 3)) => true
+    (skyline-changed? boxes (->Box 0 2 1)) => false
+    (skyline-changed? boxes (->Box 100 2 10)) => true
+    (skyline-changed? boxes (->Box 0 4 1)) => false
+    (skyline-changed? boxes (->Box 0 2 2)) => true
+  ))
+~~~
+
+I suppose I should also check to see if an empty collection registers being changed:
+
+~~~ clojure
+(fact "skyline-changed? works for an empty collection"
+  (skyline-changed? [] (->Box 1 2 3)) => true
+)
+~~~
+
+And it does!
+
+### cleanup
+
+I should write some docstrings and clean things up a bit.
+
+While I'm doing the docstrings, I realize one thing with broader implications: I've slipped from using "end" to "side" when I refer to the left and right edges of a `Box` record. I make a few adjustments throughout the codebase to reconcile those different usages.
+
+~~~ clojure
+(ns tablecloth.core)
+
+(defrecord Box [left width height])
+
+(defn right
+  "given a `Box` record, returns the `x` value of its right side."
+  [box]
+  (+ (:left box) (:width box)))
+
+
+(defn box-height
+  "given a `Box` record and a numeric x value, returns the height of that Box measured at that x (or 0, if x lies outside the box)"
+  [box x]
+  (let [left (:left box)]
+    (cond
+      (< x left)
+        0
+      (<= x (right box))
+        (:height box)
+      :else
+        0
+      )))
+
+
+(defn skyline
+  "given a collection of `Box` records and a numeric `x` value, returns the maximum height of any `Box` in the collection, measured at that `x`"
+  [boxes x]
+  (apply
+    max
+    (conj
+      (map #(box-height % x) boxes)
+      0
+      )))
+
+
+(defn box-sides
+  "given a collection of `Box` records, it returns a `set` containing all the `x` positions of the left and right sides of every box"
+  [boxes]
+  (reduce
+    (fn [sides box]
+      (into sides [(:left box) (right box)]))
+    #{}
+    boxes
+    ))
+
+
+(defn sides-within-box
+  "given a collection of `Box` records and a new `Box`, it returns a `set` containing the `x` values of the new `Box`, plus all left or right sides of the collection that fall between those limits"
+  [boxes box]
+  (let [l (:left box)
+        r (right box)
+        all (into (box-sides boxes) [l r])]
+    (into #{}
+      (filter #(and (<= l %) (>= r %)) all))
+      ))
+
+
+(defn skyline-changed?
+  "given a collection of `Box` records and a new `Box`, it returns `true` if the `skyline-function` for the collection-plus-the-new-box differs anywhere from the original skyline`"
+  [boxes box]
+  (let [exes    (sides-within-box boxes box)
+        old-sky (partial skyline boxes)
+        new-sky (partial skyline (conj boxes box))]
+    (boolean
+      (some
+        #(not= (old-sky %) (new-sky %))
+        exes))
+        ))
+~~~
+
+## other paths
+
+I want to point out that I could have done this a few other ways. To be frank, I didn't _need_ to extract just the section of the `x` axis where the new box sits.
+
+That smacks of "premature optimization" on my part, but my defense is that it's the only way I actually thought about the problem once I'd sketched it. Clojure is remarkably efficient at these things, so I doubt I would have had "trouble" with over-sized collections or memory if I'd skipped that whole part. Because the number of "checkpoints" is approximately linear with the number of boxes in the collection. `/shrug`
+
+I'm sure there are many other ways to approach it. For instance, if I were working in an object-oriented language, I'd have been tempted to give methods to the `Box` and `Boxes` objects, and maybe the call structures would be very different. Admittedly, even in Ruby I lean towards `Array#collect` and `Array#inject` methods, so my particular approach would be similar on a fine scale I bet.
+
+## next time
+
+I suppose it will be time for `skyline-normalizer` next time. That's the one that takes a collection of `Box` records, and gives you a new collection where none of the boxes overlap in the `x` direction. Well, except the ends I guess.
+
+**Next:** [normalizing a given skyline](skyline-normalizer.html)
