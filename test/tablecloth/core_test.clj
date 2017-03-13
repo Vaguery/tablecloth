@@ -44,3 +44,39 @@
 (fact "skyline works with an empty collection"
   (skyline [] 5) => 0
   )
+
+
+(fact "box-ends produces a set of end points"
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2 2 2)
+               (->Box 1 2 3)]]
+    (box-ends boxes) => #{0 1 2 3 4}
+    (box-ends (take 1 boxes)) => #{0 2}
+    (box-ends (take 2 boxes)) => #{0 2 4}
+    (box-ends []) => #{}
+    ))
+
+
+(fact "I can filter box-ends by an interval"
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2.1 2 2)]]
+    (into #{}
+      (filter
+        #(and (< 1 %) (> 3 %))
+        (box-ends boxes))) => #{2 2.1}
+    ))
+
+(fact "sides-within-box returns the side positions it overlaps in a collection of boxes"
+  (let [boxes [(->Box 0 2 1)
+               (->Box 2.1 2 2)]]
+    (sides-within-box boxes (->Box 1 2 3)) =>
+      #{1 2 2.1 3}
+    (sides-within-box boxes (->Box 12 2 3)) =>
+      #{12 14}
+    (sides-within-box boxes (->Box 1 0.1 3)) =>
+      #{1.1 1}
+    (sides-within-box boxes (->Box 2.1 0.1 3)) =>
+      #{2.1 2.2}
+    (sides-within-box boxes (->Box 0 33 3)) =>
+      #{0 2 2.1 4.1 33}
+    ))
