@@ -66,3 +66,20 @@
         #(not= (old-sky %) (new-sky %))
         exes))
         ))
+
+(defn midpoint
+  [x1 x2]
+  (/ (+ x1 x2) 2))
+
+
+(defn skyline-interpolation
+  [boxes]
+  (let [sides     (box-sides boxes)
+        chunks    (partition 2 1 (sort sides))
+        height-fn (partial skyline boxes)]
+    (zipmap
+      chunks
+      (map
+        height-fn
+        (map #(apply midpoint %) chunks
+        )))))

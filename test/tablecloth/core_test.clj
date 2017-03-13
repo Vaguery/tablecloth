@@ -57,7 +57,7 @@
     ))
 
 
-(fact "I can filter box-ends by an interval"
+(fact "I can filter box-sides by an interval"
   (let [boxes [(->Box 0 2 1)
                (->Box 2.1 2 2)]]
     (into #{}
@@ -94,4 +94,31 @@
 
 (fact "skyline-changed? works for an empty collection"
   (skyline-changed? [] (->Box 1 2 3)) => true
-)
+  )
+
+
+(fact "skyline-interpolation produces heights of horizontal spans"
+  (let [boxes [(->Box 0 2 1.1)
+               (->Box 2 2 2.2)
+               (->Box 1 2 3.3)]]
+  (box-sides boxes) => #{0 1 2 3 4}
+  (skyline-interpolation boxes) =>
+    {[0 1] 1.1, [1 2] 3.3, [2 3] 3.3, [3 4] 2.2}
+  (skyline-interpolation (take 2 boxes)) =>
+    {[0 2] 1.1, [2 4] 2.2}
+  (skyline-interpolation (take 1 boxes)) =>
+    {[0 2] 1.1}
+  (skyline-interpolation (drop 2 boxes)) =>
+    {[1 3] 3.3}
+  ))
+
+
+(fact "skyline-interpolation works for an empty collection"
+  (skyline-interpolation []) => {}
+  )
+
+
+(fact "skyline-normalize consolidates adjacent boxes of the same height"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 2)]) => [(->Box 1 4 2)]
+  )
