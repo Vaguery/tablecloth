@@ -120,5 +120,18 @@
 
 (fact "skyline-normalize consolidates adjacent boxes of the same height"
   (skyline-normalize [(->Box 1 2 2)
-                      (->Box 3 5 2)]) => [(->Box 1 4 2)]
+                      (->Box 3 5 2)]) => [(->Box 1 7 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 3)]) => [(->Box 1 2 2)
+                                          (->Box 3 5 3)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 5 2)]) => [(->Box 1 5 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 2 2 2)
+                      (->Box 2 17 2)
+                      (->Box 9 12 2)]) => [(->Box 1 20 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 5 2 2)]) => [(->Box 1 2 2)
+                                          ; (->Box 3 2 0)
+                                          (->Box 5 2 2)]
   )

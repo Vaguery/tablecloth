@@ -74,12 +74,38 @@
 
 (defn skyline-interpolation
   [boxes]
-  (let [sides     (box-sides boxes)
-        chunks    (partition 2 1 (sort sides))
-        height-fn (partial skyline boxes)]
+  (let [sides         (box-sides boxes)
+        chunks        (partition 2 1 (sort sides))
+        vector-chunks (map #(into [] %) chunks)
+        height-fn     (partial skyline boxes)]
     (zipmap
-      chunks
+      vector-chunks
       (map
         height-fn
         (map #(apply midpoint %) chunks
         )))))
+
+
+(defn skyline-normalize
+  [boxes]
+  (let [steps (sort (skyline-interpolation boxes))]
+    (loop [step      (first steps)
+           remaining (rest steps)
+           new-boxes []]
+      (if (nil? step)
+        new-boxes
+        (let [last-box (last new-boxes)
+              last-width (:width last-box)
+              old-height (:height last-box)
+              new-height (second step)
+              new-width (- (second (first step)) (ffirst step)) ]
+          (recur  (first remaining)
+                  (rest remaining)
+                  (if (= old-height new-height)
+                    (conj
+                      (butlast new-boxes)
+                      (assoc last-box :width (+ (:width last-box) new-width)))
+                    (conj
+                      new-boxes
+                      (->Box (ffirst step) new-width new-height)))
+                      ))))))

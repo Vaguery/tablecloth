@@ -204,4 +204,178 @@ Time for some tests:
   )
 ~~~
 
-*To Be Continued*
+As always, this fails because there's no `skyline-normalize` function yet. This time, my idea is we are "walking" through this map (in some sorted order, which I should worry about), and collecting and building `Box` records only when the heights change from step to step.
+
+That calls for a `loop`, but I'm going to start in that same exploratory way I used above.
+
+~~~ clojure
+(defn skyline-normalize
+  [boxes]
+  (let [chunks (sort (skyline-interpolation boxes))]
+    chunks
+  ))
+~~~
+
+This is simply trying to `sort` the `map` we get from `skyline-interpolation`. I've done that before, and it _should_ work, but...
+
+~~~ text
+FAIL "skyline-normalize consolidates adjacent boxes of the same height" at (core_test.clj:122)
+    Expected: [{:height 2, :left 1, :width 4}]
+      Actual: java.lang.ClassCastException: clojure.lang.LazySeq cannot be cast to java.lang.Comparable
+~~~
+
+Heh. Remember when I said that Clojure doesn't distinguish very well between `list` and `vector` items for equality checks? This is one of those times when it becomes important. `(sort {[3 2] 3 [2 3] 2 [1 2] 1})` produces `'([[1 2] 1] [[2 3] 2] [[3 2] 3])` with no complaint, sorting the `vector` keys correctly. But `(sort {'(3 2) 3 '(2 3) 2 '(1 2) 1})`, where the keys of the `map` are `list` items? No such luck.
+
+~~~ text
+ClassCastException clojure.lang.PersistentList cannot be cast to java.lang.Comparable  clojure.lang.Util.compare (Util.java:153)
+~~~
+
+If I'm going to want to do this, then the keys produced in `skyline-interpolation` need to be `vector` not `list` pairs. I make a slightly worrying _ad hoc_ change like this:
+
+~~~ clojure
+(defn skyline-interpolation
+  [boxes]
+  (let [sides         (box-sides boxes)
+        chunks        (partition 2 1 (sort sides))
+        vector-chunks (map #(into [] %) chunks)
+        height-fn     (partial skyline boxes)]
+    (zipmap
+      vector-chunks
+      (map
+        height-fn
+        (map #(apply midpoint %) chunks
+        )))))
+~~~
+
+That is, I explicitly make `vector-chunks` and use that for the keys. The error disappears, though that function is becoming a little bit=top-heavy for my taste. Mayhap I will extract a function from it shortly....
+
+But my error goes away, and the test now fails because I don't actually have the expected answer yet:
+
+~~~ text
+FAIL "skyline-normalize consolidates adjacent boxes of the same height" at (core_test.clj:122)
+    Expected: [{:height 2, :left 1, :width 4}]
+      Actual: ([[1 3] 2] [[3 8] 2])
+       Diffs: expected length of sequence is 1, actual length is 2.
+                actual has 1 element in excess: ([[3 8] 2])
+              in [0] expected #tablecloth.core.Box{:left 1, :width 4, :height 2}, was [[1 3] 2]
+~~~
+
+Time to loop.
+
+I confess: Clojure's tail recursion algorithms have always stressed me out. I have a tendency to build an inelegant crappy spaghetti `loop`, and I inevitably try to have two or more `recur` blocks floating around, and the compiler and I inevitably get in an argument.
+
+So maybe if I _think_ for a minute, they way the big Clojure boys seem to do, I can piece this together? Because my frustration is almost certainly caused by my desire (insistence) on doing this incrementally, and Clojure's let's say "reticence" with letting me talk about a "part" of a recursive loop.
+
+I have a sorted collection now, of pairs like this: `[[:left :right] :height]`. What I'm interested in doing is (1) as I walk (including the first step), whenever the `:height` value changes, I want to append a new `Box` to my collection. Whenever I take a step and the `:height` _doesn't_ change, I want to adjust the `:width` of the last box in my collection. And whenever I run out of pairs, I want to return the collection of `Box` items.
+
+Yeah, it seems so simple when I write it out. :/
+
+Here's a first pass. All this is doing is walking through the `skyline-interpolation` `map` pair-by-pair, and moving the "height" into a `vector` called `new-boxes`. I'm not trying to deal with the conditional "if the height changes" stuff yet, just making sure I have the Clojure `loop`/`recur` infrastructure set up correctly. Well... "correctly".
+
+~~~ clojure
+(defn skyline-normalize
+  [boxes]
+  (let [steps (sort (skyline-interpolation boxes))]
+    (loop [step      (first steps)
+           remaining (rest steps)
+           new-boxes []]
+      (if (nil? step)
+        new-boxes
+        (let [old-height (:height (last new-boxes))
+              new-height (second step)]
+          (recur  (first remaining)
+                  (rest remaining)
+                  (conj new-boxes new-height)))
+                  ))))
+~~~
+
+This fails informatively:
+
+~~~ text
+FAIL "skyline-normalize consolidates adjacent boxes of the same height" at (core_test.clj:122)
+    Expected: [{:height 2, :left 1, :width 4}]
+      Actual: [2 2]
+       Diffs: expected length of sequence is 1, actual length is 2.
+                actual has 1 element in excess: (2)
+              in [0] expected #tablecloth.core.Box{:left 1, :width 4, :height 2}, was 2
+~~~
+
+Now I think I can put a little condition in there.
+
+Heh. "Little".
+
+~~~ clojure
+(defn skyline-normalize
+  [boxes]
+  (let [steps (sort (skyline-interpolation boxes))]
+    (loop [step      (first steps)
+           remaining (rest steps)
+           new-boxes []]
+      (if (nil? step)
+        new-boxes
+        (let [last-box (last new-boxes)
+              last-width (:width last-box)
+              old-height (:height last-box)
+              new-height (second step)
+              new-width (- (second (first step)) (ffirst step)) ]
+          (recur  (first remaining)
+                  (rest remaining)
+                  (if (= old-height new-height)
+                    (conj
+                      (butlast new-boxes)
+                      (assoc last-box :width (+ (:width last-box) new-width)))
+                    (conj
+                      new-boxes
+                      (->Box (ffirst step) new-width new-height)))
+                      ))))))
+~~~
+
+OK, this is one hell of a "little" condition, but it was, to be honest, me working out the decision tree right there in plain sight. If the heights are different, I want to make a new `Box`. If the heights are the same, I need to _revise_ the last `Box` I saved to make it wider. So all that business near the end about "`(assoc last-box :width (+ (:width last-box) new-width))`" is about updating the width of the "growing" box.
+
+And... well, see, the weird thing is... it _works_. Just as a reminder, the failing test I was using as a "probe test" was
+
+~~~ clojure
+(fact "skyline-normalize consolidates adjacent boxes of the same height"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 2)]) => [(->Box 1 4 2)]
+  )
+~~~
+
+And that failed when I ran this code with the message
+
+~~~ text
+FAIL "skyline-normalize consolidates adjacent boxes of the same height" at (core_test.clj:122)
+    Expected: [{:height 2, :left 1, :width 4}]
+      Actual: ({:height 2, :left 1, :width 7})
+       Diffs: in [0 :width] expected 4, was 7
+~~~
+
+Which, I admit, was flummoxing. I had totally forgotten that I'd started with a failing test: the _correct_ answer is `(->Box 1 7 2)` now.
+
+I fix that, and totally it is time to add a bunch more tests. Because there's no way this _works_ works.
+
+Whew. Finally after adding several checks that miraculously seem to pass, I finally stumble on an edge case that causes troubles.
+
+~~~ clojure
+(fact "skyline-normalize consolidates adjacent boxes of the same height"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 2)]) => [(->Box 1 7 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 3)]) => [(->Box 1 2 2)
+                                          (->Box 3 5 3)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 5 2)]) => [(->Box 1 5 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 2 2 2)
+                      (->Box 2 17 2)
+                      (->Box 9 12 2)]) => [(->Box 1 20 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 5 2 2)]) => [(->Box 1 2 2)
+                                          ; (->Box 3 2 0)
+                                          (->Box 5 2 2)]
+  )
+~~~
+
+See, in that last one, there is a _gap_ between the two boxes. They don't overlap, and my algorithm "notices" the "height `0`" section and makes a heightless box as a "spacer".
+
+**To Be Continued**
