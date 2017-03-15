@@ -118,7 +118,7 @@
   )
 
 
-(fact "skyline-normalize consolidates adjacent boxes of the same height"
+(fact "skyline-normalize consolidates boxes where possible"
   (skyline-normalize [(->Box 1 2 2)
                       (->Box 3 5 2)]) => [(->Box 1 7 2)]
   (skyline-normalize [(->Box 1 2 2)
@@ -132,6 +132,19 @@
                       (->Box 9 12 2)]) => [(->Box 1 20 2)]
   (skyline-normalize [(->Box 1 2 2)
                       (->Box 5 2 2)]) => [(->Box 1 2 2)
-                                          ; (->Box 3 2 0)
                                           (->Box 5 2 2)]
   )
+
+(fact "skyline-normalize works for an empty collection"
+  (skyline-normalize []) => [])
+
+(fact "skyline-normalize removes redundant boxes"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 9 2)
+                      (->Box 2 8 1)]) => [(->Box 1 9 2)])
+
+(fact "skyline-normalize removes heightless boxes"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 9 0)
+                      (->Box 2 8 1)]) =>
+    (contains [(->Box 1 2 2) (->Box 3 7 1)] :in-any-order))

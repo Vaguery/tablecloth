@@ -93,7 +93,7 @@
            remaining (rest steps)
            new-boxes []]
       (if (nil? step)
-        new-boxes
+        (filter #(pos? (:height %)) new-boxes)
         (let [last-box (last new-boxes)
               last-width (:width last-box)
               old-height (:height last-box)

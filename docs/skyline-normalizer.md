@@ -378,4 +378,80 @@ Whew. Finally after adding several checks that miraculously seem to pass, I fina
 
 See, in that last one, there is a _gap_ between the two boxes. They don't overlap, and my algorithm "notices" the "height `0`" section and makes a heightless box as a "spacer".
 
-**To Be Continued**
+I spend a few minutes introducing logic that just _ignores_ these empty spacer boxes, but the problem then is that two boxes of the same height but separated by a gap are "merged" into a single box. Not good.
+
+So it feels as if this wants to be a post-processing step of some sort. That is, given I have "finished" all the steps, I want to remove any `Box` with zero height from the returned collection.
+
+I think I can get away with just modifying the final returned `new-boxes` in place. Let's see:
+
+~~~ clojure
+(defn skyline-normalize
+  [boxes]
+  (let [steps (sort (skyline-interpolation boxes))]
+    (loop [step      (first steps)
+           remaining (rest steps)
+           new-boxes []]
+      (if (nil? step)
+        (filter #(pos? (:height %)) new-boxes)
+        (let [last-box (last new-boxes)
+              last-width (:width last-box)
+              old-height (:height last-box)
+              new-height (second step)
+              new-width (- (second (first step)) (ffirst step)) ]
+          (recur  (first remaining)
+                  (rest remaining)
+                  (if (= old-height new-height)
+                    (conj
+                      (butlast new-boxes)
+                      (assoc last-box :width (+ (:width last-box) new-width)))
+                    (conj
+                      new-boxes
+                      (->Box (ffirst step) new-width new-height)))
+                      ))))))
+~~~
+
+What I've done here is introduce a little `(filter #(pos? (:height %)) new-boxes)` for the returned collection. Admittedly this will produce a lazy sequence, not a `vector` like it did before. But again: collection types are something I try to put off worrying about in Clojure.
+
+In the end, I cobble together a collection of tests that feel as if they capture all the edge cases:
+
+
+~~~ clojure
+(fact "skyline-normalize consolidates boxes where possible"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 2)]) => [(->Box 1 7 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 3 5 3)]) => [(->Box 1 2 2)
+                                          (->Box 3 5 3)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 5 2)]) => [(->Box 1 5 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 2 2 2)
+                      (->Box 2 17 2)
+                      (->Box 9 12 2)]) => [(->Box 1 20 2)]
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 5 2 2)]) => [(->Box 1 2 2)
+                                          (->Box 5 2 2)]
+  )
+
+(fact "skyline-normalize works for an empty collection"
+  (skyline-normalize []) => [])
+
+(fact "skyline-normalize removes redundant boxes"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 9 2)
+                      (->Box 2 8 1)]) => [(->Box 1 9 2)])
+
+(fact "skyline-normalize removes heightless boxes"
+  (skyline-normalize [(->Box 1 2 2)
+                      (->Box 1 9 0)
+                      (->Box 2 8 1)]) =>
+    (contains [(->Box 1 2 2) (->Box 3 7 1)] :in-any-order))
+~~~
+
+That last one is interesting, since it's not really a desired feature but it works to surface something I was half-worried about. Basically, the "empty" box is removed without messing with the others.
+
+I think (?) I've got it working. I _definitely_ need to do some refactoring and cleanup now, though.
+
+### cleaning up
+
+*To Be Continued*
