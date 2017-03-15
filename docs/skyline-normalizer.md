@@ -454,4 +454,70 @@ I think (?) I've got it working. I _definitely_ need to do some refactoring and 
 
 ### cleaning up
 
-*To Be Continued*
+I don't have a lot to do here, it turns out. I extract two small functions from the big top-heavy `skyline-normalize` (`expand-last-box` and `append-new-box`) just to improve the readability of all those fiddly bits down in the bottom `recur` clause. Then I add some documentation to the functions I've written here.
+
+~~~ clojure
+(defn midpoint
+  "returns the arithmetic mean of two numbers"
+  [x1 x2]
+  (/ (+ x1 x2) 2))
+
+
+(defn skyline-interpolation
+  "given a collection of `Box` records, return a `map` where the keys are vectors containing the `x` values of left and right sides of all non-overlapping portions, and the values are the heights of each portion"
+  [boxes]
+  (let [sides         (box-sides boxes)
+        chunks        (partition 2 1 (sort sides))
+        vector-chunks (map #(into [] %) chunks)
+        height-fn     (partial skyline boxes)]
+    (zipmap
+      vector-chunks
+      (map
+        height-fn
+        (map #(apply midpoint %) chunks
+        )))))
+
+
+(defn expand-last-box
+  "given a collection of `Box` records and a number, expand the :width of the last box in the collection by that much more"
+  [boxes extra-width]
+  (let [last-box (last boxes)]
+    (conj
+      (butlast boxes)
+      (assoc
+        last-box
+        :width
+        (+ (:width last-box) extra-width)))))
+
+
+(defn append-new-box
+  "given a collection of `Box` records and :left, :width and :height values, append a new `Box` to the collection witht those fields"
+  [boxes left width height]
+  (conj
+    boxes
+    (->Box left width height)))
+
+
+(defn skyline-normalize
+  "given a collection of `Box` records, construct a new collection which has the same skyline at all points, but only includes non-overlapping boxes"
+  [boxes]
+  (let [steps (sort (skyline-interpolation boxes))]
+    (loop [step      (first steps)
+           remaining (rest steps)
+           new-boxes []]
+      (if (nil? step)
+        (filter #(pos? (:height %)) new-boxes)
+        (let [last-box (last new-boxes)
+              last-width (:width last-box)
+              old-height (:height last-box)
+              new-height (second step)
+              new-width (- (second (first step)) (ffirst step))]
+          (recur  (first remaining)
+                  (rest remaining)
+                  (if (= old-height new-height)
+                    (expand-last-box new-boxes new-width)
+                    (append-new-box new-boxes (ffirst step) new-width new-height)))
+                    )))))
+~~~
+
+**Next:** [minimizing a skyline (which may be tricky!)](skyline-reducer.html)

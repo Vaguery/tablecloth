@@ -86,6 +86,24 @@
         )))))
 
 
+(defn expand-last-box
+  [boxes extra-width]
+  (let [last-box (last boxes)]
+    (conj
+      (butlast boxes)
+      (assoc
+        last-box
+        :width
+        (+ (:width last-box) extra-width)))))
+
+
+(defn append-new-box
+  [boxes left width height]
+  (conj
+    boxes
+    (->Box left width height)))
+
+
 (defn skyline-normalize
   [boxes]
   (let [steps (sort (skyline-interpolation boxes))]
@@ -98,14 +116,10 @@
               last-width (:width last-box)
               old-height (:height last-box)
               new-height (second step)
-              new-width (- (second (first step)) (ffirst step)) ]
+              new-width (- (second (first step)) (ffirst step))]
           (recur  (first remaining)
                   (rest remaining)
                   (if (= old-height new-height)
-                    (conj
-                      (butlast new-boxes)
-                      (assoc last-box :width (+ (:width last-box) new-width)))
-                    (conj
-                      new-boxes
-                      (->Box (ffirst step) new-width new-height)))
-                      ))))))
+                    (expand-last-box new-boxes new-width)
+                    (append-new-box new-boxes (ffirst step) new-width new-height)))
+                    )))))

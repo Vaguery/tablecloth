@@ -6,4 +6,7 @@ It wouldn't be nice to [propose a coding _kata_](http://vaguery.github.io/tablec
 2. [the `skyline` function](skyline-function.html)
 3. [`skyline-changed?` predicate](skyline-changed.html)
 4. [skyline normalizer](skyline-normalizer.html)
-5. skyline reducer (TBD)
+5. [skyline reducer](skyline-reducer.html) (in progress)
+6. skyline optimizer (TBD)
+7. skyline counter (TBD)
+8. skyline histogrammer (TBD)
