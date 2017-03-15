@@ -520,4 +520,4 @@ I don't have a lot to do here, it turns out. I extract two small functions from 
                     )))))
 ~~~
 
-**Next:** [minimizing a skyline (which may be tricky!)](skyline-reducer.html)
+**Next:** [removing redundant boxes from a skyline](skyline-reducer.html)
